@@ -14,7 +14,7 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 120   # enough for full baseline crawl
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repo
@@ -40,7 +40,10 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
-          git add snapshot_central.json
+          git add snapshot_central.json 2>/dev/null || true
+          git stash || true
+          git pull --rebase origin main || true
+          git stash pop || true
+          git add snapshot_central.json 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore: update central snapshot [skip ci]"
           git push origin HEAD:main
